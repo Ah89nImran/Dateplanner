@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Our Next Date 🌸</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: #fdf0f7;
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .wrap {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+      background: linear-gradient(135deg, #f3e8f7 0%, #fce4ec 60%, #f8eaf2 100%);
+      border-radius: 24px;
+      border: 1px solid #e8b4d0;
+      margin-bottom: 2.5rem;
+    }
+    .hero-flowers { font-size: 1.4rem; letter-spacing: 10px; margin-bottom: 0.8rem; opacity: 0.75; }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.1rem;
+      color: #7b3f6e;
+      line-height: 1.3;
+    }
+    .hero p {
+      color: #a0627a;
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+      font-weight: 300;
+      font-style: italic;
+    }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #7b3f6e;
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1.5px solid #e8b4d0;
+    }
+
+    /* ── DATE TYPE CARDS ── */
+    .date-type-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 2.5rem;
+    }
+    .date-card {
+      background: #fdf4fb;
+      border: 1.5px solid #e0b0cc;
+      border-radius: 18px;
+      padding: 1.4rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      user-select: none;
+    }
+    .date-card:hover {
+      background: #f8e4f2;
+      border-color: #c47aa0;
+      transform: translateY(-2px);
+    }
+    .date-card.selected {
+      background: linear-gradient(135deg, #d497be, #b86a95);
+      border-color: #9b5b80;
+    }
+    .date-card .icon { font-size: 2.2rem; margin-bottom: 0.5rem; }
+    .date-card .label {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      color: #7b3f6e;
+      font-weight: 600;
+    }
+    .date-card.selected .label { color: white; }
+    .date-card .sublabel { font-size: 0.78rem; color: #a0627a; margin-top: 4px; }
+    .date-card.selected .sublabel { color: #fce4ec; }
+
+    /* ── DETAIL PANELS ── */
+    .detail-section {
+      background: #fdf4fb;
+      border: 1px solid #e0b0cc;
+      border-radius: 18px;
+      padding: 1.6rem 1.4rem;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+    .detail-section.visible {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── OPTION GROUPS & PILLS ── */
+    .option-group { margin-bottom: 1.3rem; }
+    .option-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #7b3f6e;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.6rem;
+    }
+    .pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      background: white;
+      border: 1.5px solid #e0b0cc;
+      border-radius: 22px;
+      padding: 6px 15px;
+      font-size: 0.83rem;
+      color: #7b3f6e;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .pill:hover { background: #f8e4f2; border-color: #c47aa0; }
+    .pill.selected { background: #b86a95; border-color: #9b5b80; color: white; }
+
+    /* ── TEXTAREA ── */
+    .note-input {
+      width: 100%;
+      border: 1.5px solid #e0b0cc;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.9rem;
+      color: #5a3050;
+      background: white;
+      resize: vertical;
+      outline: none;
+      min-height: 72px;
+    }
+    .note-input:focus { border-color: #b86a95; }
+    .note-input::placeholder { color: #c4a0b8; }
+
+    /* ── SUBMIT ── */
+    .floral-divider {
+      text-align: center;
+      color: #d4a0be;
+      font-size: 1rem;
+      letter-spacing: 8px;
+      margin: 1.5rem 0;
+      display: none;
+    }
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #b86a95, #9b5b80);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: none;
+    }
+    .submit-btn:hover { background: linear-gradient(135deg, #a05a83, #87456e); transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* ── SUCCESS ── */
+    .success-msg {
+      display: none;
+      text-align: center;
+      background: linear-gradient(135deg, #f3e8f7, #fce4ec);
+      border: 1px solid #e8b4d0;
+      border-radius: 18px;
+      padding: 2.5rem;
+      margin-top: 1rem;
+    }
+    .success-msg .big-icon { font-size: 2.5rem; margin-bottom: 0.6rem; }
+    .success-msg h2 {
+      font-family: 'Playfair Display', serif;
+      color: #7b3f6e;
+      font-size: 1.5rem;
+      margin-bottom: 0.4rem;
+    }
+    .success-msg p { color: #a0627a; font-style: italic; font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="hero-flowers">🌸 ✿ 🌷 ✿ 🌸</div>
+    <h1>Our Next Date ✨</h1>
+    <p>Pick what sounds perfect to you, my love</p>
+  </div>
+
+  <p class="section-title">What kind of date sounds dreamy?</p>
+
+  <div class="date-type-grid">
+    <div class="date-card" onclick="selectType('movie')" id="card-movie">
+      <div class="icon">🎬</div>
+      <div class="label">Movie Date</div>
+      <div class="sublabel">Cinema or cosy at home</div>
+    </div>
+    <div class="date-card" onclick="selectType('cafe')" id="card-cafe">
+      <div class="icon">☕</div>
+      <div class="label">Café Date</div>
+      <div class="sublabel">Coffee, cake & conversation</div>
+    </div>
+    <div class="date-card" onclick="selectType('park')" id="card-park">
+      <div class="icon">🌿</div>
+      <div class="label">Park Date</div>
+      <div class="sublabel">Fresh air & picnic vibes</div>
+    </div>
+    <div class="date-card" onclick="selectType('dinner')" id="card-dinner">
+      <div class="icon">🕯️</div>
+      <div class="label">Dinner Date</div>
+      <div class="sublabel">Fancy or cosy restaurant</div>
+    </div>
+  </div>
+
+  <!-- ══ MOVIE ══ -->
+  <div class="detail-section" id="section-movie">
+    <p class="section-title">🎬 Movie Date Details</p>
+    <div class="option-group">
+      <label>Where to watch?</label>
+      <div class="pill-group" id="movie-venue">
+        <span class="pill" onclick="togglePill(this)">Cinema</span>
+        <span class="pill" onclick="togglePill(this)">Home / Netflix</span>
+        <span class="pill" onclick="togglePill(this)">Drive-in</span>
+      </div>
+    </div>
+    <div class="option-group">
+      <label>Genre you're in the mood for</label>
+      <div class="pill-group" id="movie-genre">
+        <span class="pill" onclick="togglePill(this)">Romantic</span>
+        <span class="pill" onclick="togglePill(this)">Comedy</span>
+        <span class="pill" onclick="togglePill(this)">Thriller</span>
+        <span class="pill" onclick="togglePill(this)">Fantasy</span>
+        <span class="pill" onclick="togglePill(this)">Animated</span>
+        <span class="pill" onclick="togglePill(this)">Horror</span>
+        <span class="pill" onclick="togglePill(this)">Action</span>
+        <span class="pill" onclick="togglePill(this)">Drama</span>
+      </div>
+    </div>
+    <div class="option-group">
+      <label>Snacks you want</label>
+      <div class="pill-group" id="movie-snacks">
+        <span class="pill" onclick="togglePill(this)">Popcorn (salted)</span>
+        <span class="pill" onclick="togglePill(this)">Popcorn (sweet)</span>
+        <span class="pill" onclick="togglePill(this)">Nachos</span>
+        <span class="pill" onclick="togglePill(this)">Chips & dip</span>
+        <span class="pill" onclick="togglePill(this)">Chocolates</span>
+        <span class="pill" onclick="togglePill(this)">Ice cream</span>
+        <span class="pill" onclick="togglePill(this)">Pizza</span>
+      </div>
+    </div>
+    <div class="option-group">
+      <label>Anything specific you'd love? (optional)</label>
+      <textarea class="note-input" id="movie-note" placeholder="e.g. I want to watch Interstellar again, or surprise me! 🎬"></textarea>
+    </div>
+  </div>
+
+  <!-- ══ CAFE ══ -->
+  <div class="detail-section" id="section-cafe">
+    <p class="section-title">☕ Café Date Details</p>
+    <div class="option-group">
+      <label>Café vibe</label>
+      <div class="pill-group" id="cafe-vibe">
+        <span class="pill" onclick="togglePill(this)">Cosy & quiet</span>
+        <span class="pill" onclick="togglePill(this)">Aesthetic & pretty</span>
+        <span class="pill" onclick="togglePill(this)">Busy & lively</span>
+        <span class="pill" onclick="togglePill(this)">Outdoor seating</span>
+        <span class="pill" onclick="togglePill(this)">Rooftop</span>
+      </div>
+    </div>
+    <div class="option-group">
+      <label>Drinks</label>
+      <div class="pill-group" id="cafe-drinks">
+        <span class="pill" onclick="togglePill(this)">Latte</span>
+        <span class="pill" onclick="togglePill(this)">Iced coffee</span>
+        <span class="pill" onclick="togglePill(this)">Matcha</span>
+        <span class="pill" onclick="togglePill(this)">Hot chocolate</span>
+        <span class="pill" onclick="togglePill(this)">Chai</span>
+        <span class="pill" onclick="togglePill(this)">Fresh juice</span>
+        <span class="pill" onclick="togglePill(this)">Herbal tea</span>
+        <span class="pill" onclick="togglePill(this)">Milkshake</span>
+      </div>
+    </div>
+    <div class="option-group">
+      <label>What to eat</label>
+      <div class="pill-group" id="cafe-food">
+        <span class="pill" onclick="togglePill(this)">Croissant</span>
+        <span class="pill" onclick="togglePill(this)">Waffles</span>
+        <span class="pill" onclick="togglePill(this)">Cake slice</span>
+        <span class="pill" onclick="togglePill(this)">Cheesecake</span>
+        <span class="pill" onclick="togglePill(this)">Pancakes</span>
+        <span class="pill" onclick="togglePill(this)">Sandwich</span>
+        <span class="pill" onclick="togglePill(this)">Avocado toast</span>
+        <span class="pill" onclick="togglePill(this)">Pastries</span>
+      </div>
+    </div>
+    <div class="option-group">
+      <label>Activities at the café</label>
+      <div class="pill-group" id="cafe-activity">
+        <span class="pill" onclick="togglePill(this)">Just talk</span>
+        <span class="pill" onclick="togglePill(this)">Board games</span>
+        <span class="pill" onclick="togglePill(this)">Drawing together</span>
+        <span class="pill" onclick="togglePill(this)">People-watching</span>
+        <span class="pill" onclick="togglePill(this)">Read together</span>
+      </div>
+    </div>
+    <div class="option-group">
+      <label>Any notes? (optional)</label>
+      <textarea class="note-input" id="cafe-note" placeholder="e.g. that cute café near the bookshop! ☕"></textarea>
+    </div>
+  </div>
+
+  <!-- ══ PARK ══ -->
+  <div class="detail-section" id="section-park">
+    <p class="section-title">🌿 Park Date Details</p>
+    <div class="option-group">
+      <label>Activities</label>
+      <div class="pill-group" id="park-activity">
+        <span class="pill" onclick="togglePill(this)">Picnic</span>
+        <span class="pill" onclick="togglePill(this)">Walk / stroll</span>
+        <span class="pill" onclick="togglePill(this)">Cycling</span>
+        <span class="pill" onclick="togglePill(this)">Sitting & talking</span>
+        <span class="pill" onclick="togglePill(this)">Feed the ducks</span>
+        <span class="pill" onclick="togglePill(this)">Photography</span>
+        <span class="pill" onclick="togglePill(this)">Stargazing (evening)</span>
+        <span class="pill" onclick="togglePill(this)">Frisbee / games</span>
+      </div>
+    </div>
+    <div class="option-group">
+      <label>Picnic food</label>
+      <div class="pill-group" id="park-food">
+        <span class="pill" onclick="togglePill(this)">Sandwiches</span>
+        <span class="pill" onclick="togglePill(this)">Fruits & berries</span>
+        <span class="pill" onclick="togglePill(this)">Chips & hummus</span>
+        <span class="pill" onclick="togglePill(this)">Cheese & crackers</span>
+        <span class="pill" onclick="togglePill(this)">Pasta salad</span>
+        <span class="pill" onclick="togglePill(this)">Wraps</span>
+        <span class="pill" onclick="togglePill(this)">Cookies & brownies</span>
+        <span class="pill" onclick="togglePill(this)">Nothing, just drinks</span>
+      </div>
+    </div>
+    <div class="option-group">
+      <label>Drinks to bring</label>
+      <div class="pill-group" id="park-drinks">
+        <span class="pill" onclick="togglePill(this)">Lemonade</span>
+        <span class="pill" onclick="togglePill(this)">Iced tea</span>
+        <span class="pill" onclick="togglePill(this)">Juice</span>
+        <span class="pill" onclick="togglePill(this)">Sparkling water</span>
+        <span class="pill" onclick="togglePill(this)">Smoothies</span>
+        <span class="pill" onclick="togglePill(this)">Coffee thermos</span>
+      </div>
+    </div>
+    <div class="option-group">
+      <label>Time of day</label>
+      <div class="pill-group" id="park-time">
+        <span class="pill" onclick="togglePill(this)">Morning</span>
+        <span class="pill" onclick="togglePill(this)">Afternoon</span>
+        <span class="pill" onclick="togglePill(this)">Golden hour / sunset</span>
+        <span class="pill" onclick="togglePill(this)">Evening</span>
+      </div>
+    </div>
+    <div class="option-group">
+      <label>Any notes? (optional)</label>
+      <textarea class="note-input" id="park-note" placeholder="e.g. let's go to that park by the lake 🌿"></textarea>
+    </div>
+  </div>
+
+  <!-- ══ DINNER ══ -->
+  <div class="detail-section" id="section-dinner">
+    <p class="section-title">🕯️ Dinner Date Details</p>
+    <div class="option-group">
+      <label>Vibe</label>
+      <div class="pill-group" id="dinner-vibe">
+        <span class="pill" onclick="togglePill(this)">Fancy & candlelit</span>
+        <span class="pill" onclick="togglePill(this)">Cosy & casual</span>
+        <span class="pill" onclick="togglePill(this)">Rooftop restaurant</span>
+        <span class="pill" onclick="togglePill(this)">Cook at home together</span>
+        <span class="pill" onclick="togglePill(this)">Street food / market</span>
+      </div>
+    </div>
+    <div class="option-group">
+      <label>Cuisine</label>
+      <div class="pill-group" id="dinner-cuisine">
+        <span class="pill" onclick="togglePill(this)">Italian</span>
+        <span class="pill" onclick="togglePill(this)">Pakistani / desi</span>
+        <span class="pill" onclick="togglePill(this)">Chinese</span>
+        <span class="pill" onclick="togglePill(this)">Japanese / sushi</span>
+        <span class="pill" onclick="togglePill(this)">Thai</span>
+        <span class="pill" onclick="togglePill(this)">Mexican</span>
+        <span class="pill" onclick="togglePill(this)">Burgers & fries</span>
+        <span class="pill" onclick="togglePill(this)">Mediterranean</span>
+        <span class="pill" onclick="togglePill(this)">Pizza</span>
+        <span class="pill" onclick="togglePill(this)">Surprise me!</span>
+      </div>
+    </div>
+    <div class="option-group">
+      <label>Dessert after?</label>
+      <div class="pill-group" id="dinner-dessert">
+        <span class="pill" onclick="togglePill(this)">Ice cream walk</span>
+        <span class="pill" onclick="togglePill(this)">Dessert at the restaurant</span>
+        <span class="pill" onclick="togglePill(this)">Dessert café</span>
+        <span class="pill" onclick="togglePill(this)">Home-made dessert</span>
+        <span class="pill" onclick="togglePill(this)">No dessert, I'm good!</span>
+      </div>
+    </div>
+    <div class="option-group">
+      <label>After dinner</label>
+      <div class="pill-group" id="dinner-after">
+        <span class="pill" onclick="togglePill(this)">Evening walk</span>
+        <span class="pill" onclick="togglePill(this)">Drive around</span>
+        <span class="pill" onclick="togglePill(this)">Watch a movie</span>
+        <span class="pill" onclick="togglePill(this)">Go home & cosy up</span>
+        <span class="pill" onclick="togglePill(this)">Surprise me!</span>
+      </div>
+    </div>
+    <div class="option-group">
+      <label>Any notes? (optional)</label>
+      <textarea class="note-input" id="dinner-note" placeholder="e.g. I've been craving biryani lately 🕯️"></textarea>
+    </div>
+  </div>
+
+  <div class="floral-divider" id="floral-divider">✿ ❀ ✿</div>
+
+  <button class="submit-btn" id="submit-btn" onclick="submitForm()">
+    Send my wishlist to you 💌
+  </button>
+
+  <div class="success-msg" id="success-msg">
+    <div class="big-icon">💌</div>
+    <h2>Sent with love!</h2>
+    <p>He'll plan the perfect date just for you 🌸</p>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+  // ══════════════════════════════════════════════════
+  // 👇 PASTE YOUR GOOGLE SHEET URL BETWEEN THE QUOTES
+  // ══════════════════════════════════════════════════
+  const GOOGLE_SHEET_URL = '';
+  // ══════════════════════════════════════════════════
+
+  let selectedType = null;
+
+  function selectType(type) {
+    document.querySelectorAll('.date-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.detail-section').forEach(s => s.classList.remove('visible'));
+    document.getElementById('card-' + type).classList.add('selected');
+    document.getElementById('section-' + type).classList.add('visible');
+    document.getElementById('submit-btn').style.display = 'block';
+    document.getElementById('floral-divider').style.display = 'block';
+    selectedType = type;
+    setTimeout(() => {
+      document.getElementById('section-' + type).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+
+  function togglePill(el) {
+    el.classList.toggle('selected');
+  }
+
+  function getSelected(groupId) {
+    return Array.from(document.querySelectorAll('#' + groupId + ' .pill.selected'))
+      .map(p => p.textContent.trim()).join(', ');
+  }
+
+  function submitForm() {
+    if (!selectedType) return;
+
+    const btn = document.getElementById('submit-btn');
+    btn.textContent = 'Sending 💕...';
+    btn.disabled = true;
+
+    const data = {
+      timestamp: new Date().toLocaleString(),
+      dateType: selectedType
+    };
+
+    if (selectedType === 'movie') {
+      data.venue    = getSelected('movie-venue');
+      data.genre    = getSelected('movie-genre');
+      data.snacks   = getSelected('movie-snacks');
+      data.notes    = document.getElementById('movie-note').value;
+    } else if (selectedType === 'cafe') {
+      data.vibe     = getSelected('cafe-vibe');
+      data.drinks   = getSelected('cafe-drinks');
+      data.food     = getSelected('cafe-food');
+      data.activity = getSelected('cafe-activity');
+      data.notes    = document.getElementById('cafe-note').value;
+    } else if (selectedType === 'park') {
+      data.activity = getSelected('park-activity');
+      data.food     = getSelected('park-food');
+      data.drinks   = getSelected('park-drinks');
+      data.time     = getSelected('park-time');
+      data.notes    = document.getElementById('park-note').value;
+    } else if (selectedType === 'dinner') {
+      data.vibe     = getSelected('dinner-vibe');
+      data.cuisine  = getSelected('dinner-cuisine');
+      data.dessert  = getSelected('dinner-dessert');
+      data.after    = getSelected('dinner-after');
+      data.notes    = document.getElementById('dinner-note').value;
+    }
+
+    if (!GOOGLE_SHEET_URL) {
+      console.log('No Google Sheet URL set. Form data:', data);
+      showSuccess();
+      return;
+    }
+
+    fetch(GOOGLE_SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(() => showSuccess())
+    .catch(() => showSuccess());
+  }
+
+  function showSuccess() {
+    document.getElementById('submit-btn').style.display = 'none';
+    document.getElementById('floral-divider').style.display = 'none';
+    document.getElementById('success-msg').style.display = 'block';
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
