@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hania's Date Planner 🌸</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: #fdf0f7;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ══════════════════════════════
+       SCREEN SYSTEM
+    ══════════════════════════════ */
+    .screen {
+      display: none;
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+      animation: screenIn 0.5s ease;
+    }
+    .screen.active { display: block; }
+    @keyframes screenIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .wrap { max-width: 600px; margin: 0 auto; }
+
+    /* ══════════════════════════════
+       SCREEN 1 — FLOWER INTRO
+    ══════════════════════════════ */
+    #screen-intro {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background: linear-gradient(160deg, #f3e8f7 0%, #fce4ec 60%, #f8d7ea 100%);
+    }
+
+    .flower-stage {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin-bottom: 2rem;
+    }
+
+    /* Big mauve flower SVG drawn in CSS */
+    .flower {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0) rotate(-40deg);
+      animation: flowerLand 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+      font-size: 7rem;
+      line-height: 1;
+      filter: drop-shadow(0 8px 24px rgba(180,80,140,0.25));
+    }
+    @keyframes flowerLand {
+      0%   { transform: translate(-50%, -200%) scale(0.2) rotate(-40deg); opacity: 0; }
+      60%  { transform: translate(-50%, -45%) scale(1.15) rotate(8deg); opacity: 1; }
+      80%  { transform: translate(-50%, -52%) scale(0.95) rotate(-4deg); }
+      100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .petals-ring {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 160px; height: 160px;
+      opacity: 0;
+      animation: petalsPop 0.6s ease 1.3s forwards;
+    }
+    @keyframes petalsPop {
+      0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+      60%  { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+      100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .intro-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: #7b3f6e;
+      text-align: center;
+      line-height: 1.3;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 1.5s forwards;
+      margin-bottom: 0.6rem;
+    }
+    .intro-sub {
+      color: #b06888;
+      font-style: italic;
+      font-size: 0.95rem;
+      text-align: center;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 1.8s forwards;
+      margin-bottom: 2.5rem;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* YES buttons */
+    .yes-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+      max-width: 320px;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 2.1s forwards;
+    }
+    .yes-btn {
+      padding: 1rem 1.5rem;
+      border: none;
+      border-radius: 50px;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .yes-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(180,80,140,0.25); }
+    .yes-btn-main {
+      background: linear-gradient(135deg, #c47aa0, #9b5b80);
+      color: white;
+    }
+    .yes-btn-grumpy {
+      background: white;
+      color: #7b3f6e;
+      border: 2px solid #e0b0cc;
+    }
+    .yes-btn-grumpy:hover { background: #fdf0f7; }
+
+    /* ══════════════════════════════
+       SCREEN 2 — DATE TYPE PICKER
+    ══════════════════════════════ */
+    #screen-types { background: #fdf0f7; }
+
+    .page-header {
+      text-align: center;
+      padding: 2rem 1rem 1.5rem;
+    }
+    .page-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: #7b3f6e;
+    }
+    .page-header p { color: #b06888; font-style: italic; font-size: 0.9rem; margin-top: 0.4rem; }
+
+    .date-type-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 2rem;
+    }
+
+    .date-card {
+      border-radius: 20px;
+      padding: 1.6rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      user-select: none;
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+    .date-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.10); }
+    .date-card.selected { border-color: #7b3f6e; box-shadow: 0 0 0 3px rgba(123,63,110,0.2); }
+
+    /* Individual card colours */
+    .card-movie   { background: linear-gradient(135deg, #f9e4f5, #eeccf2); }
+    .card-cafe    { background: linear-gradient(135deg, #fde8d8, #f5cdb8); }
+    .card-park    { background: linear-gradient(135deg, #d8f5e4, #b8e8cc); }
+    .card-dessert { background: linear-gradient(135deg, #fce8f0, #f5c6dc); }
+
+    .date-card .icon { font-size: 2.6rem; margin-bottom: 0.6rem; display: block; }
+    .date-card .label {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      color: #4a2040;
+      font-weight: 600;
+    }
+    .date-card .sublabel { font-size: 0.76rem; color: #7a5068; margin-top: 4px; }
+
+    /* ══════════════════════════════
+       SCREEN 3 — DETAIL SECTIONS
+    ══════════════════════════════ */
+    #screen-detail { background: #fdf0f7; }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #9b5b80;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-bottom: 1.2rem;
+      padding: 6px 0;
+      background: none;
+      border: none;
+      font-family: 'Lato', sans-serif;
+    }
+    .back-btn:hover { color: #7b3f6e; }
+
+    .detail-header {
+      background: linear-gradient(135deg, #f3e8f7, #fce4ec);
+      border-radius: 18px;
+      padding: 1.4rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      border: 1px solid #e8b4d0;
+    }
+    .detail-header .big-icon { font-size: 2.5rem; }
+    .detail-header h2 {
+      font-family: 'Playfair Display', serif;
+      color: #7b3f6e;
+      font-size: 1.3rem;
+      margin-top: 0.4rem;
+    }
+
+    .section-card {
+      background: white;
+      border: 1px solid #edd5e8;
+      border-radius: 16px;
+      padding: 1.3rem;
+      margin-bottom: 1.1rem;
+    }
+    .section-card h3 {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #9b5b80;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 0.8rem;
+    }
+
+    .choice-grid {
+      display: grid;
+      gap: 10px;
+    }
+    .choice-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .choice-grid.cols-1 { grid-template-columns: 1fr; }
+
+    .choice-btn {
+      background: #fdf4fb;
+      border: 1.5px solid #e0b0cc;
+      border-radius: 14px;
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+      font-family: 'Lato', sans-serif;
+    }
+    .choice-btn:hover { background: #f8e4f2; border-color: #c47aa0; }
+    .choice-btn.selected {
+      background: linear-gradient(135deg, #d497be, #b86a95);
+      border-color: #9b5b80;
+      color: white;
+    }
+    .choice-btn .ch-icon { font-size: 1.3rem; display: block; margin-bottom: 3px; }
+    .choice-btn .ch-label { font-size: 0.85rem; font-weight: 700; color: #4a2040; line-height: 1.3; }
+    .choice-btn.selected .ch-label { color: white; }
+    .choice-btn .ch-sub { font-size: 0.73rem; color: #9070a0; margin-top: 2px; }
+    .choice-btn.selected .ch-sub { color: #fce4ec; }
+
+    /* Section title */
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      color: #7b3f6e;
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1.5px solid #e8b4d0;
+    }
+
+    /* Note input */
+    .note-input {
+      width: 100%;
+      border: 1.5px solid #e0b0cc;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.9rem;
+      color: #5a3050;
+      background: white;
+      resize: vertical;
+      outline: none;
+      min-height: 60px;
+    }
+    .note-input:focus { border-color: #b86a95; }
+    .note-input::placeholder { color: #c4a0b8; }
+
+    /* Submit */
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #b86a95, #9b5b80);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 1rem;
+    }
+    .submit-btn:hover { background: linear-gradient(135deg, #a05a83, #87456e); transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* ══════════════════════════════
+       SCREEN 4 — SUCCESS
+    ══════════════════════════════ */
+    #screen-success {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, #f3e8f7 0%, #fce4ec 60%, #f8d7ea 100%);
+    }
+    .success-inner { text-align: center; max-width: 360px; }
+    .success-inner .big-icon { font-size: 4rem; animation: heartBeat 0.8s ease; }
+    @keyframes heartBeat {
+      0%,100% { transform: scale(1); }
+      30%      { transform: scale(1.3); }
+      60%      { transform: scale(0.95); }
+    }
+    .success-inner h2 {
+      font-family: 'Playfair Display', serif;
+      color: #7b3f6e;
+      font-size: 1.8rem;
+      margin: 1rem 0 0.5rem;
+    }
+    .success-inner p { color: #a0627a; font-style: italic; }
+
+    /* Floating petals */
+    .petal {
+      position: fixed;
+      font-size: 1.4rem;
+      pointer-events: none;
+      animation: fall linear forwards;
+    }
+    @keyframes fall {
+      0%   { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ SCREEN 1: INTRO ══ -->
+<div id="screen-intro" class="screen active">
+  <div class="flower-stage">
+    <svg class="petals-ring" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(80,80)">
+        <ellipse rx="18" ry="36" fill="#e8a0c8" opacity="0.6" transform="rotate(0) translate(0,-20)"/>
+        <ellipse rx="18" ry="36" fill="#d487b8" opacity="0.6" transform="rotate(45) translate(0,-20)"/>
+        <ellipse rx="18" ry="36" fill="#e8a0c8" opacity="0.6" transform="rotate(90) translate(0,-20)"/>
+        <ellipse rx="18" ry="36" fill="#d487b8" opacity="0.6" transform="rotate(135) translate(0,-20)"/>
+        <ellipse rx="18" ry="36" fill="#e8a0c8" opacity="0.6" transform="rotate(180) translate(0,-20)"/>
+        <ellipse rx="18" ry="36" fill="#d487b8" opacity="0.6" transform="rotate(225) translate(0,-20)"/>
+        <ellipse rx="18" ry="36" fill="#e8a0c8" opacity="0.6" transform="rotate(270) translate(0,-20)"/>
+        <ellipse rx="18" ry="36" fill="#d487b8" opacity="0.6" transform="rotate(315) translate(0,-20)"/>
+        <circle r="18" fill="#f5c0d8"/>
+      </g>
+    </svg>
+    <div class="flower">🌸</div>
+  </div>
+
+  <h1 class="intro-title">Want to go out<br>my lovely Hania? 🌷</h1>
+  <p class="intro-sub">pick one, no pressure (there is pressure)</p>
+
+  <div class="yes-buttons">
+    <button class="yes-btn yes-btn-main" onclick="goToTypes()">
+      Yes 🥰
+    </button>
+    <button class="yes-btn yes-btn-grumpy" onclick="goToTypes()">
+      Yes, with a grumpy face 😒
+    </button>
+  </div>
+</div>
+
+<!-- ══ SCREEN 2: DATE TYPES ══ -->
+<div id="screen-types" class="screen">
+  <div class="wrap">
+    <div class="page-header">
+      <h2>What kind of date? 🌸</h2>
+      <p>pick one and let's see what you actually want</p>
+    </div>
+
+    <div class="date-type-grid">
+      <div class="date-card card-movie" onclick="goToDetail('movie')">
+        <span class="icon">🎬</span>
+        <div class="label">Cinema Date</div>
+        <div class="sublabel">popcorn & pretending not to cry</div>
+      </div>
+      <div class="date-card card-cafe" onclick="goToDetail('cafe')">
+        <span class="icon">☕</span>
+        <div class="label">Café & Food Date</div>
+        <div class="sublabel">eat, talk, repeat</div>
+      </div>
+      <div class="date-card card-park" onclick="goToDetail('park')">
+        <span class="icon">🌿</span>
+        <div class="label">Park Date</div>
+        <div class="sublabel">outside outside outside</div>
+      </div>
+      <div class="date-card card-dessert" onclick="goToDetail('dessert')">
+        <span class="icon">🍦</span>
+        <div class="label">Ice Cream Date</div>
+        <div class="sublabel">dessert is always the answer</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 3: DETAIL ══ -->
+<div id="screen-detail" class="screen">
+  <div class="wrap">
+    <button class="back-btn" onclick="goBack()">← back</button>
+    <div id="detail-content"></div>
+    <textarea class="note-input" id="extra-note" placeholder="anything else you want? be honest 💬"></textarea>
+    <button class="submit-btn" onclick="submitForm()">Send to him 💌</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN 4: SUCCESS ══ -->
+<div id="screen-success" class="screen">
+  <div class="success-inner">
+    <div class="big-icon">💌</div>
+    <h2>Sent with love!</h2>
+    <p>He's already planning something special for you 🌸</p>
+  </div>
+</div>
+
+<script>
+  // ══════════════════════════════════════════════════
+  // 👇 PASTE YOUR GOOGLE SHEET URL BETWEEN THE QUOTES
+  // ══════════════════════════════════════════════════
+  const GOOGLE_SHEET_URL = '';
+  // ══════════════════════════════════════════════════
+
+  let currentType = null;
+  let selections = {};
+
+  const DETAIL_TEMPLATES = {
+    movie: {
+      icon: '🎬',
+      title: 'Cinema Date',
+      sections: [
+        {
+          id: 'cinema',
+          label: 'Which cinema?',
+          cols: 2,
+          choices: [
+            { icon: '🎭', label: 'Centaurus Cineplex', sub: 'F-8, Islamabad' },
+            { icon: '🎥', label: 'Cinestar', sub: 'Saddar, Rawalpindi' },
+          ]
+        },
+        {
+          id: 'showtime',
+          label: 'When?',
+          cols: 2,
+          choices: [
+            { icon: '🌅', label: 'Afternoon show', sub: 'less crowded, more us time' },
+            { icon: '🌙', label: 'Evening show', sub: 'dinner after?' },
+          ]
+        },
+        {
+          id: 'movie',
+          label: 'What to watch?',
+          cols: 1,
+          choices: [
+            { icon: '🕵️', label: 'Obsession', sub: "you haven't watched it, let's go" },
+            { icon: '🕷️', label: 'Spider-Man', sub: "because why not honestly" },
+            { icon: '✨', label: 'Whatever animated movie is showing', sub: 'surprise us both' },
+          ]
+        },
+        {
+          id: 'snacks',
+          label: 'Snacks (mandatory)',
+          cols: 2,
+          choices: [
+            { icon: '🍿', label: 'Salted popcorn', sub: 'the correct choice' },
+            { icon: '🍬', label: 'Sweet popcorn', sub: 'chaotic but valid' },
+            { icon: '🌮', label: 'Nachos', sub: 'messy but worth it' },
+            { icon: '🍫', label: 'Chocolates', sub: 'sneak them in obviously' },
+          ]
+        }
+      ]
+    },
+
+    cafe: {
+      icon: '☕',
+      title: 'Café & Food Date',
+      sections: [
+        {
+          id: 'place',
+          label: 'Where to go?',
+          cols: 1,
+          choices: [
+            { icon: '🏡', label: 'Desi Cuisine, F-7', sub: 'classic desi, never fails' },
+            { icon: '🌿', label: 'Monal Restaurant', sub: 'Margalla Hills view — worth the drive' },
+            { icon: '☕', label: 'Gloria Jeans, Centaurus', sub: 'coffee & vibes, F-8 Islamabad' },
+            { icon: '🍕', label: 'Tuscany Courtyard', sub: 'F-7, cosy Italian vibes' },
+            { icon: '🎈', label: 'Chaaye Khana', sub: 'F-6, aesthetic & Pakistani' },
+          ]
+        },
+        {
+          id: 'food',
+          label: 'What are you eating?',
+          cols: 2,
+          choices: [
+            { icon: '🍔', label: 'Burger', sub: 'smash or normal, both valid' },
+            { icon: '🍝', label: 'Pasta', sub: 'always a yes' },
+            { icon: '🥗', label: 'Something light', sub: 'salad girlie era' },
+            { icon: '🍛', label: 'Full desi meal', sub: 'karahi & naan it is' },
+          ]
+        },
+        {
+          id: 'drinks',
+          label: 'What to drink?',
+          cols: 2,
+          choices: [
+            { icon: '☕', label: 'Latte', sub: 'classic' },
+            { icon: '🧋', label: 'Cold coffee', sub: 'summer approved' },
+            { icon: '🍵', label: 'Chai', sub: 'if it is that kind of day' },
+            { icon: '🥤', label: 'Milkshake', sub: 'share one obviously' },
+          ]
+        }
+      ]
+    },
+
+    park: {
+      icon: '🌿',
+      title: 'Park Date',
+      sections: [
+        {
+          id: 'park',
+          label: 'Which park?',
+          cols: 2,
+          choices: [
+            { icon: '🌳', label: 'F-9 Park Picnic', sub: 'Islamabad, bring a blanket' },
+            { icon: '🎡', label: 'Joyland Amusement Park', sub: 'Rawalpindi, chaos guaranteed' },
+          ]
+        },
+        {
+          id: 'activity',
+          label: 'What are we doing?',
+          cols: 2,
+          choices: [
+            { icon: '🧺', label: 'Picnic & chill', sub: 'blanket, snacks, good vibes' },
+            { icon: '🎢', label: 'Rides & meltdowns', sub: 'Joyland special' },
+            { icon: '📸', label: 'Take pictures', sub: 'and pretend we did not plan it' },
+            { icon: '🚶', label: 'Just walk & talk', sub: 'old couple energy' },
+          ]
+        },
+        {
+          id: 'food',
+          label: 'Park snacks',
+          cols: 2,
+          choices: [
+            { icon: '🌽', label: 'Bhutta (corn)', sub: 'it is literally always there' },
+            { icon: '🥪', label: 'Homemade sandwiches', sub: 'we pack them ourselves, cute' },
+            { icon: '🍟', label: 'Fries from outside', sub: 'you know which stall' },
+            { icon: '🧁', label: 'Pastries from bakery', sub: 'Igloo or United bakery run first' },
+          ]
+        }
+      ]
+    },
+
+    dessert: {
+      icon: '🍦',
+      title: 'Ice Cream Date',
+      sections: [
+        {
+          id: 'dessert',
+          label: 'What are we getting?',
+          cols: 1,
+          choices: [
+            { icon: '🌀', label: 'Soft Swirl (as always)', sub: 'our go-to, no explanation needed' },
+            { icon: '🍦', label: "McDonald's Vanilla Cone", sub: 'Rs. 99 and it hits every time' },
+            { icon: '🍫', label: 'Walls Magnum from the chemist', sub: 'random and iconic, somehow always works' },
+          ]
+        },
+        {
+          id: 'after',
+          label: 'What after?',
+          cols: 2,
+          choices: [
+            { icon: '🚗', label: 'Drive around', sub: 'windows down, music loud' },
+            { icon: '🌙', label: 'Evening walk', sub: 'digest and decompress' },
+            { icon: '🎬', label: 'Go watch something', sub: 'turn it into a movie date too' },
+            { icon: '🏠', label: 'Head home', sub: 'full and happy, the dream' },
+          ]
+        }
+      ]
+    }
+  };
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function goToTypes() {
+    showScreen('screen-types');
+  }
+
+  function goToDetail(type) {
+    currentType = type;
+    selections = {};
+    const tmpl = DETAIL_TEMPLATES[type];
+    let html = `
+      <div class="detail-header">
+        <div class="big-icon">${tmpl.icon}</div>
+        <h2>${tmpl.title}</h2>
+      </div>
+    `;
+    tmpl.sections.forEach(sec => {
+      html += `<div class="section-card">
+        <h3>${sec.label}</h3>
+        <div class="choice-grid cols-${sec.cols}" id="group-${sec.id}">`;
+      sec.choices.forEach((c, i) => {
+        html += `<button class="choice-btn" onclick="toggleChoice(this, '${sec.id}')">
+          <span class="ch-icon">${c.icon}</span>
+          <span class="ch-label">${c.label}</span>
+          <span class="ch-sub">${c.sub}</span>
+        </button>`;
+      });
+      html += `</div></div>`;
+    });
+    document.getElementById('detail-content').innerHTML = html;
+    document.getElementById('extra-note').value = '';
+    showScreen('screen-detail');
+  }
+
+  function goBack() {
+    showScreen('screen-types');
+  }
+
+  function toggleChoice(el, groupId) {
+    el.classList.toggle('selected');
+    if (!selections[groupId]) selections[groupId] = [];
+    const label = el.querySelector('.ch-label').textContent.trim();
+    if (el.classList.contains('selected')) {
+      if (!selections[groupId].includes(label)) selections[groupId].push(label);
+    } else {
+      selections[groupId] = selections[groupId].filter(x => x !== label);
+    }
+  }
+
+  function submitForm() {
+    const btn = document.querySelector('.submit-btn');
+    btn.textContent = 'Sending 💕...';
+    btn.disabled = true;
+
+    const data = {
+      timestamp: new Date().toLocaleString(),
+      dateType: currentType,
+      selections: JSON.stringify(selections),
+      notes: document.getElementById('extra-note').value
+    };
+
+    if (!GOOGLE_SHEET_URL) {
+      console.log('No Sheet URL. Data:', data);
+      showSuccess();
+      return;
+    }
+
+    fetch(GOOGLE_SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).then(() => showSuccess()).catch(() => showSuccess());
+  }
+
+  function showSuccess() {
+    showScreen('screen-success');
+    launchPetals();
+  }
+
+  function launchPetals() {
+    const emojis = ['🌸','🌷','✿','💮','🌺'];
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      p.classList.add('petal');
+      p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.animationDuration = (2.5 + Math.random() * 3) + 's';
+      p.style.animationDelay = (Math.random() * 2) + 's';
+      p.style.fontSize = (1 + Math.random() * 1.2) + 'rem';
+      document.body.appendChild(p);
+      p.addEventListener('animationend', () => p.remove());
+    }
+  }
+</script>
+</body>
+</html>
